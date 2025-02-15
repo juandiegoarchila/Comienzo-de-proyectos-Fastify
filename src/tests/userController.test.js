@@ -15,7 +15,7 @@ describe('User Controller', function () {
 
   // Antes de todos los tests, levantamos el servidor
   before(async () => {
-    server = await app.listen(0); // Levanta en un puerto dinámico
+server = await app.listen({ port: 0 });
     console.log(chalk.magenta('\n═══════════════════════════════════════'));
     console.log(chalk.bold('🎯 INICIANDO PRUEBAS DE USER CONTROLLER...'));
     console.log(chalk.magenta('═══════════════════════════════════════'));

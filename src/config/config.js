@@ -1,45 +1,27 @@
 // src/config/config.js
-
-import {
-  initializeApp,
-  cert,
-  applicationDefault,
-  getApps,
-} from 'firebase-admin/app';
+import { initializeApp, cert, applicationDefault, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { config } from 'dotenv';
 import fs from 'fs';
 
-config(); // Carga variables de entorno
+config(); // Carga las variables de entorno
 
-let firebaseConfig = {};
+const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+let firebaseConfig = { credential: applicationDefault() };
 
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  // Verifica que el archivo de credenciales exista
-  if (!fs.existsSync(process.env.GOOGLE_APPLICATION_CREDENTIALS)) {
-    console.error(
-      `❌ El archivo ${process.env.GOOGLE_APPLICATION_CREDENTIALS} no existe.`
-    );
-    process.exit(1);
-  }
+if (credentialsPath) {
   try {
-    const serviceAccount = JSON.parse(
-      fs.readFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS, 'utf8')
-    );
+    const serviceAccount = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
     firebaseConfig = { credential: cert(serviceAccount) };
   } catch (error) {
-    console.error('❌ Error al leer GOOGLE_APPLICATION_CREDENTIALS:', error);
+    console.error(`❌ Error al cargar credenciales: ${error.message}`);
     process.exit(1);
   }
-} else {
-  firebaseConfig = { credential: applicationDefault() };
 }
 
-if (getApps().length === 0) {
+if (!getApps().length) {
   initializeApp(firebaseConfig);
   console.log('✅ Firebase conectado correctamente');
 }
 
-const db = getFirestore();
-
-export { db };
+export const db = getFirestore();
